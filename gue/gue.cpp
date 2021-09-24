@@ -3,6 +3,8 @@
 #include <iostream>
 #include <cmath>
 #include <complex>
+#include <thread>
+#include <chrono>
 using namespace std::literals;
 
 #ifdef PYTHON
@@ -15,7 +17,7 @@ namespace py = pybind11;
 Eigen::MatrixXcf generate_matrix(unsigned int n) {
     std::random_device dev;
     std::mt19937 rng(dev());
-    std::uniform_real_distribution<double> dist(0, 1);
+    std::normal_distribution<double> dist;
     std::vector<double> a;
     Eigen::MatrixXcf M(n, n);
     // initialize random variables
@@ -49,9 +51,29 @@ std::vector<double> generate_gue_dets(unsigned int n, unsigned int iters) {
     return dets;
 }
 
+std::vector<double> generate_gue_traces(unsigned int n, unsigned int iters) {    
+    std::vector<double> traces;
+    for (int i = 0; i < iters; i++) {
+	Eigen::MatrixXcf M = generate_matrix(n);
+	traces.push_back((M*M).trace().real());
+    }
+    return traces;
+}
+
+// Not a good idea
+// std::vector<double> pgenerate_gue_dets(unsigned int n, unsigned int iters) {
+//     unsigned int cores = std::thread::hardware_concurrency();
+//     std::vector<std::thread> threads;
+//     for (int core = 0; core < cores; core++) {
+// 	threads.emplace_back(generate_gue_dets, n, iters);
+//     }
+//     for (int i = 0; i < cores; i++) {
+// 	threads[i].join();
+//     }
+// }
+
 int main()
-{
-    generate_gue_dets(2, 10);
+{ 
     return 0;
 }
 
@@ -59,5 +81,12 @@ int main()
 PYBIND11_MODULE(gue, m) {
     m.doc() = "Generates GUEs.";	
     m.def("generate_gue_dets", &generate_gue_dets, py::arg("n"), py::arg("iters"));
+    m.def("generate_gue_traces", &generate_gue_traces, py::arg("n"), py::arg("iters"));
 }
 #endif
+
+
+// p1: see code
+// p2: higher mean, higher stddev, higher kurtosis
+// p3: see code
+// p4: solve analytically?
