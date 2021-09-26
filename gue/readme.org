@@ -1,2 +1,31 @@
 #+TITLE: Gaussian Unitary Ensembles
 
+* About
+This code generates random matrices within a Gaussian Unitary Ensemble, calculates their matrices and traces, and uses Python to plot the distribution of the two (as well as explore how the.
+
+* Usage
+** Building
+You'll need CMake, =pybind11= and =Eigen= (use your favorite package manager!).
+
+Build for the python script with =cmake . -DPYTHON=ON -DCPP=OFF && make= and build to direct binary with =cmake . -DPYTHON=OFF -DCPP=ON && make=.
+
+** Running
+Either =./gue= or =python3 visualize.py <dimension>=, where <dimension> is the value for /n/ you want.
+
+* Graphs
+
+[[./figures/Figure_1.png]]
+[[./figures/Figure_2.png]]
+[[./figures/Figure_3.png]]
+[[./figures/Figure_4.png]]
+
+* Problem Answers
+1. <see graphs>
+2. Mean, standard deviation, and skew increases as /n/ increases.
+3. <see graphs>
+
+* Next Steps
+- Calculate expoential decay of traces
+- Parallelize code
+- Implement a CUDA kernel for this instead
+

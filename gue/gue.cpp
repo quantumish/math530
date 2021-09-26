@@ -73,7 +73,8 @@ std::vector<double> generate_gue_traces(unsigned int n, unsigned int iters) {
 // }
 
 int main()
-{ 
+{
+    pgenerate_gue_dets(5, 10);
     return 0;
 }
 
