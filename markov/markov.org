@@ -1,0 +1,37 @@
+#+TITLE: Markov Chains
+
+Define $E$ to be a random 1x3 vector.
+#+begin_src julia-vterm
+  E = [rand(), rand(), rand()]
+#+end_src
+
+#+begin_src julia-vterm
+  F = zeros(size(E)[1], size(E)[1])
+  for i in 1:size(E)[1]
+      for j in 1:size(E)[1]
+          F[i,j] = E[i]+E[j]
+      end
+  end
+#+end_src
+
+#+begin_src julia-vterm
+  K = 0;
+
+  vals = []
+  for i in 1:size(E)[1]
+      sum = 0
+      for j in 1:size(E)[1]
+          @printf("%s %s\n", E[i], F[i,j])
+          sum += exp(E[i] - F[i,j])
+      end
+      append!(vals, sum)
+  end
+  K = rand() * 1/maximum(vals)
+#+end_src
+
+#+begin_src julia-vterm
+
+#+end_src
+
+
+
