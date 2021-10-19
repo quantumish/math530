@@ -2,6 +2,14 @@ using Printf
 using LinearAlgebra
 using Plots
 
+# Choose an arbitrary epsilon to define convergence
+const EPSILON = 1e-10
+
+verbose = false
+if "-v" in ARGS
+    global verbose = true
+end
+
 function pprint(matrix)
     print("\n")
     display(matrix)
@@ -9,13 +17,15 @@ function pprint(matrix)
 end
 
 n = parse(Int64, ARGS[1])
-#E = [0,1,2.1,3,5,6,9.4,8,9,10,10,12,13,14,15]
+
 E = zeros(n)
 for i in 1:n
     E[i] = rand()
 end
-#pprint(E)
-
+if verbose
+    print("E:")
+    pprint(E)
+end
 F = zeros(n, n)
 for i in 1:n
     for j in 1:n
@@ -26,19 +36,24 @@ for i in 1:n
         end
     end
 end
-print("F (original):")
-#pprint(F)
+
+if verbose
+    print("F (original):")
+    pprint(F)
+end
 for i in 1:n
     for j in 1:n-i
         tmp = rand()
-	    #F[i, j+i] += tmp
-	    #F[j+i, i] += tmp
+	F[i, j+i] += tmp
+	F[j+i, i] += tmp
     end
 end
-print("F (corrected)")
-#pprint(F)
-K = zeros(n)
+if verbose
+    print("F (corrected)")
+    pprint(F)
+end
 
+K = zeros(n)
 vals = []
 for i in 1:n
     sum = 0
@@ -49,7 +64,7 @@ for i in 1:n
     # append!(vals, sum)
     K[i] = 1/sum
 end
-print("K: ", K, "\n")
+if verbose print("K: ", K, "\n") end
 
 P = zeros(n, n)
 for i in 1:n
@@ -58,11 +73,10 @@ for i in 1:n
     end
 end
 
-print("P:")
-#pprint(P)
-# softmax!(P)
-# pprint(P)
-print("Init:")
+if verbose
+    print("P:")
+    pprint(P)
+end
 x = zeros(n)
 for i in 1:n
     x[i] = rand()
@@ -70,14 +84,34 @@ end
 x /= sum(x)
 x_t = zeros(1,n)
 transpose!(x_t, x)
-#pprint(x)
+if verbose
+    print("Initial X:")
+    pprint(x_t)
+end
 whee = x_t*P
 display(whee); @printf("\nConverged: \n");
-for i in 1:10000
-    # pprint(whee);
+data = Matrix{Float64}[]
+counter = 1
+while true
+    old = whee;
     global whee = whee*P
+    push!(data, whee)
+    # print(whee)
+    if sum(broadcast(abs, whee-old)) < EPSILON
+        break
+    end
+    global counter = counter + 1
 end
-#pprint(whee)
+if verbose @printf("Converged in %s steps. \n", counter) end
+
+converge = 1
+for i in data
+    if (broadcast(abs, i-whee) .< 0.01*whee) == trues(1,n)
+        break
+    end
+    global converge += 1
+end
+if verbose @printf("Within 1%% in %s steps.\n", converge) end
 plot(reshape(whee, length(whee), 1))
 m = maximum(whee)
 plot!(reshape(E*m, length(E), 1))
